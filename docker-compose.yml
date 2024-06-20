@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+  db1:
+    image: postgres:latest
+    container_name: db1
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - db1_data:/var/lib/postgresql/data
+    networks:
+      - my-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: my-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "15432:80"
+    networks:
+      - my-network
+
+  redis: 
+    image:
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  db1_data:
