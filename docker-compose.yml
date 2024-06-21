@@ -24,9 +24,6 @@ services:
     networks:
       - my-network
 
-  redis: 
-    image:
-
 networks:
   my-network:
     driver: bridge
