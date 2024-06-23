@@ -1,0 +1,37 @@
+version: 1
+default_environment: dev
+project_id: c96e9b90-57ce-4f67-817d-102ad329b0e5
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-postgres
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-postgres.git
+    config:
+      database: Amazon
+      host: localhost
+      port: 5433
+      user: postgres
+      filter_schemas:
+      - public
+  loaders:
+  - name: target-csv
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/target-csv.git
+    config:
+      destination_path: ../data/not-process/
+      file_naming_scheme: teste     
+jobs:
+- name: extract-data
+  tasks:
+  - tap-postgres target-csv
+schedules:
+- name: extract
+  interval: '@daily'
+  job: extract-data
+
+
+
