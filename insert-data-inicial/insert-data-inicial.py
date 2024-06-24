@@ -1,6 +1,5 @@
 import pandas as pd
 import psycopg2
-from psycopg2 import sql
 
 # Configuração do banco de dados - PostgreSQL
 db_config = {
@@ -13,8 +12,6 @@ db_config = {
 
 # Caminho do CSV
 csv_file_path = 'amazon.csv'
-# Leitura do CSV usando pandas
-df = pd.read_csv(csv_file_path, encoding='ISO-8859-1')
 
 # Conexão ao banco de dados - PostgreSQL
 try:
@@ -22,25 +19,28 @@ try:
     cursor = conn.cursor()
     print("Conexão com o banco de dados estabelecida.")
 
-    # Criando tabela
+    # Leitura do CSV usando pandas
+    df = pd.read_csv(csv_file_path, encoding='ISO-8859-1')
+
+    # Criando a tabela Sales com tamanhos ajustados
     create_table_query = '''
     CREATE TABLE IF NOT EXISTS Sales (
-        product_id VARCHAR(100),
-        product_name VARCHAR(100),
-        category VARCHAR(100),
-        discounted_price VARCHAR(100),
-        actual_price VARCHAR(100),
-        discount_percentage VARCHAR(100),
-        rating VARCHAR(50),
-        rating_count VARCHAR(100),
-        about_product VARCHAR(100),
-        user_id VARCHAR(100),
-        user_name VARCHAR(100),
-        review_id VARCHAR(100),
-        review_title VARCHAR(100),
-        review_content VARCHAR(100),
-        img_link VARCHAR(255),
-        product_link VARCHAR(255)
+        product_id TEXT,
+        product_name TEXT,
+        category TEXT,
+        discounted_price TEXT,
+        actual_price TEXT,
+        discount_percentage TEXT,
+        rating TEXT,
+        rating_count TEXT,
+        about_product TEXT,
+        user_id TEXT,
+        user_name TEXT,
+        review_id TEXT,
+        review_title TEXT,
+        review_content TEXT,
+        img_link TEXT,
+        product_link TEXT
     )
     '''
     cursor.execute(create_table_query)
@@ -48,15 +48,19 @@ try:
     print("Tabela Sales criada com sucesso.")
 
     # Inserir dados no banco de dados
-    for i, row in df.iterrows():
-        insert_query = sql.SQL('''
-        INSERT INTO Sales (product_id, product_name, category, discounted_price, actual_price, discount_percentage, rating, rating_count, about_product, user_id, user_name, review_id, review_title, review_content, img_link, product_link)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''')
-        cursor.execute(insert_query, tuple(row))
+    for index, row in df.iterrows():
+        try:
+            insert_query = """
+                INSERT INTO Sales (product_id, product_name, category, discounted_price, actual_price, discount_percentage, rating, rating_count, about_product, user_id, user_name, review_id, review_title, review_content, img_link, product_link)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+            data_tuple = tuple(row)
+            cursor.execute(insert_query, data_tuple)
+            conn.commit()
+        except Exception as e:
+            conn.rollback()  
+            print(f'Erro ao inserir a linha {index + 1}: {e}') 
 
-    # Commit das inserções
-    conn.commit()
     print("Dados inseridos com sucesso.")
 
 except Exception as error:
@@ -64,8 +68,8 @@ except Exception as error:
 
 finally:
     # Fechar a conexão
-    if 'cursor' in locals():
+    if 'cursor' in locals() and cursor is not None:
         cursor.close()
-    if 'conn' in locals():
+    if 'conn' in locals() and conn is not None:
         conn.close()
     print("Conexão com o banco de dados encerrada.")
