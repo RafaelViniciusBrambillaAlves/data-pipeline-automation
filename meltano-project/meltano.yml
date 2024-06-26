@@ -23,10 +23,18 @@ plugins:
     pip_url: git+https://github.com/MeltanoLabs/target-csv.git
     config:
         destination_path: ../data/not-process
+  utilities: 
+  - name: organize-files
+    namespace: organize-files
+    commands: 
+      organize_files:
+        args: python/organize_files.py
+        executable: python
 jobs:
   - name: extract-data
     tasks:
     - tap-postgres target-csv
+    - organize-files:organize_files
 schedules:
   - name: extract
     interval: '@daily'
