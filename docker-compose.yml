@@ -12,6 +12,54 @@ services:
       - db1_data:/var/lib/postgresql/data
     networks:
       - my-network
+    
+  spark-master:
+    image: bitnami/spark:latest
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    networks:
+      - my-network
+
+  spark-worker-1:
+    image: bitnami/spark:latest
+    container_name: spark-worker-1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"
+    networks:
+      - my-network
+
+  pyspark:
+    image: jupyter/pyspark-notebook:latest
+    container_name: pyspark
+    user: root
+    environment:
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_LOCAL_IP=pyspark
+      - SPARK_LOCAL_HOSTNAME=pyspark
+    volumes:
+      - C:/project/data:/data  
+    ports:
+      - "8888:8888"
+    depends_on:
+      - spark-master
+      - spark-worker-1  
+    networks:
+      - my-network
 
   pgadmin:
     image: dpage/pgadmin4:latest

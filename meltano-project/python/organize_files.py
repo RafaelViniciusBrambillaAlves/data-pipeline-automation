@@ -19,8 +19,6 @@ def organize_csv_and_metrics(directory):
 
     # Obtém a data de hoje no formato YYYYMMDD
     today_date = datetime.today().strftime('%Y%m%d')
-    today_date = (datetime.today() + timedelta(days=1)).strftime('%Y%m%d')
-
     # Diretório de destino para os arquivos de hoje
     today_directory = os.path.join(directory, today_date)
     os.makedirs(today_directory, exist_ok=True)
