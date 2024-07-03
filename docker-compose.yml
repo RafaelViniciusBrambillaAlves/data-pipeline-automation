@@ -14,7 +14,7 @@ services:
       - my-network
     
   spark-master:
-    image: bitnami/spark:latest
+    image: bitnami/spark:3.3.1
     container_name: spark-master
     environment:
       - SPARK_MODE=master
@@ -22,6 +22,8 @@ services:
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+    volumes:
+      - C:/project/data:/data  
     ports:
       - "8080:8080"
       - "7077:7077"
@@ -29,13 +31,15 @@ services:
       - my-network
 
   spark-worker-1:
-    image: bitnami/spark:latest
+    image: bitnami/spark:3.3.1
     container_name: spark-worker-1
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_WORKER_MEMORY=1G
       - SPARK_WORKER_CORES=1
+    volumes:
+      - C:/project/data:/data  
     depends_on:
       - spark-master
     ports:
@@ -44,7 +48,7 @@ services:
       - my-network
 
   pyspark:
-    image: jupyter/pyspark-notebook:latest
+    image: jupyter/pyspark-notebook:spark-3.3.1
     container_name: pyspark
     user: root
     environment:
