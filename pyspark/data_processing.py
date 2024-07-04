@@ -140,7 +140,6 @@ def main():
     today_date = datetime.today().strftime('%Y%m%d')
     read_file_path = f"/data/not-process/{today_date}/public-sales.csv"
     save_file_path = f"/data/processed/{today_date}/public-sales.csv"
-    save_file_path = f"/data/processed/20240703/public-sales.csv"
 
     # Ler o arquivo CSV
     df = read_csv(spark, read_file_path)
