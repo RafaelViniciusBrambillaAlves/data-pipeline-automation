@@ -1,0 +1,17 @@
+{
+  "name": "csv-file-source",
+  "config": {
+    "connector.class": "com.github.jcustenborder.kafka.connect.spooldir.SpoolDirCsvSourceConnector",
+    "tasks.max": "10",
+    "input.path": "/data/current_data",
+    "finished.path": "/data/current_data/finished",
+    "error.path": "/data/current_data/error",
+    "input.file.pattern": ".*\\.csv",
+    "topic": "csv-topic",
+    "schema.generation.enabled": "true",
+    "csv.first.row.as.header": "true",
+    "csv.file.charset": "UTF-8",
+    "csv.case.sensitive.field.names": "false",
+    "csv.ignore.leading.whitespace": "false"
+  }
+}
