@@ -1,6 +1,6 @@
 version: 1
 default_environment: dev
-project_id: 32eca16d-9a3e-4798-a158-b9793555307b
+project_id: a0932c12-9783-4fd5-88f6-6cb529e2ef20
 environments:
 - name: dev
 - name: staging
@@ -11,18 +11,20 @@ plugins:
     variant: meltanolabs
     pip_url: git+https://github.com/MeltanoLabs/tap-postgres.git
     config:
-        database: Amazon
-        host: localhost
-        port: 5433
-        user: postgres
-        filter_schemas: ["public"]
-        default_replication_method: FULL_TABLE
+      database: Amazon
+      host: localhost
+      user: postgres
+      filter_schemas:
+      - public
+      default_replication_method: FULL_TABLE
+      port: 5433
   loaders:
   - name: target-csv
     variant: meltanolabs
     pip_url: git+https://github.com/MeltanoLabs/target-csv.git
     config:
-        destination_path: ../data/not-process
+      destination_path: ../data
+
   utilities: 
   - name: organize-files
     namespace: organize-files
@@ -31,12 +33,7 @@ plugins:
         args: python/organize_files.py
         executable: python
 jobs:
-  - name: extract-data
-    tasks:
-    - tap-postgres target-csv
-    - organize-files:organize_files
-schedules:
-  - name: extract
-    interval: '@daily'
-    job: extract-data
-
+- name: extract
+  tasks:
+  - tap-postgres target-csv
+  - organize-files:organize_files
