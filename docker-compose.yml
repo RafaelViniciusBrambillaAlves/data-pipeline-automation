@@ -1,4 +1,24 @@
 version: '3.9'
+x-airflow-common:
+  &airflow-common
+  image: apache/airflow:2.0.0
+  environment:
+    - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+    - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://postgres:postgres@postgres:5432/airflow
+    - AIRFLOW__CORE__FERNET_KEY=FB0o_zt4e3Ziq3LdUUO7F2Z95cvFFx16hU8jTeR1ASM=
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    - AIRFLOW__CORE__LOGGING_LEVEL=INFO
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    - ./airflow/plugins:/opt/airflow/plugins
+    - ./airflow/airflow.cfg:/opt/airlfow/airflow.cfg
+    - ./data:/opt/airflow/data
+  depends_on:
+    - postgres
+    - db1 
+  networks:
+    - my-network
 
 services:
   db1:
@@ -107,6 +127,10 @@ services:
         confluent-hub install --no-prompt datastax/kafka-connect-cassandra:2.0.0
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
+        echo "Waiting for Kafka Connect to be ready"
+        until curl -s http://localhost:8083/; do sleep 5; done
+        echo "Creating Kafka topic"
+        kafka-topics --create --topic csv-topic --bootstrap-server broker:29092 --partitions 1 --replication-factor 1
         sleep infinity
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8083/ || exit 1"]
@@ -203,6 +227,55 @@ services:
       - CASSANDRA_PASSWORD=cassandra
     networks:
       - confluent
+
+  postgres:
+    image: postgres:12
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=airflow
+    ports:
+      - "5432:5432"
+    networks:
+      - my-network
+
+  airflow-init:
+    << : *airflow-common
+    container_name: airflow_init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        pip install psycopg2-binary pandas &&
+        airflow db init &&
+        airflow users create \
+          --role Admin \
+          --username airflow \
+          --password airflow \
+          --email airflow@airflow.com \
+          --firstname airflow \
+          --lastname airflow
+    restart: on-failure
+    networks:
+      - my-network
+
+  airflow-webserver:
+    << : *airflow-common
+    command: airflow webserver
+    ports:
+      - 8080:8080
+    container_name: airflow_webserver
+    restart: always
+    networks:
+      - my-network
+
+  airflow-scheduler:
+    << : *airflow-common
+    command: airflow scheduler
+    container_name: airflow_scheduler
+    restart: always
+    networks:
+      - my-network
 
 networks:
   confluent:
