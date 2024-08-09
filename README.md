@@ -1,20 +1,3 @@
-# project
-
-docker compose up -d
-
-docker exec -it kafka-connect kafka-console-consumer --bootstrap-server broker:29092 --topic csv-topic --from-beginning
-
-docker exec -it data-pipeline-automation-spark-master-1 bash
-cd /opt/bitnami/spark/pyspark
-pip install py4j
-pip install cassandra-driver
-python main.py
-
-docker exec -it cassandra bash  
-cqlsh
-USE amazon; 
-
-
 # Data Pipeline Automation
 
 Este projeto é um estudo para uma solução de automação para processamento de dados que envolve extração, transformação e carregamento (ETL) de dados usando uma combinação de PostgreSQL, Apache Airflow, Kafka, PySpark e Cassandra. O fluxo de dados é configurado para extrair dados de um banco de dados PostgreSQL, processá-los e carregá-los em um banco de dados Cassandra.
