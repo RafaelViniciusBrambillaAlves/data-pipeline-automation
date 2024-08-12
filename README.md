@@ -47,12 +47,14 @@ O projeto utiliza uma configuração Docker Compose para orquestrar os seguintes
 - **PostgreSQL (postgres):** Banco de dados usado pelo Airflow.
 
 ## 🤖 Configuração e Execução
+1. **Arquivos**
+   Insira o arquivo config_data.csv dentro da pasta data/current_data
 
-1. **Inicie os containers**:
+2. **Inicie os containers**:
    ```bash
    docker compose up -d 
 
-2. **Execute o script PySpark**
+3. **Execute o script PySpark**
 Conecte-se ao contêiner do Spark e execute o script PySpark para processar os dados:
 
 ```bash
@@ -63,11 +65,11 @@ pip install cassandra-driver
 python main.py
 ```
 
-3. **Extraia os dados do Airflow**
+4. **Extraia os dados do Airflow**
 Acesse localhost:8080 
 Rode a dag
 
-4. **Verifique o resultado final no Cassandara**
+5. **Verifique o resultado final no Cassandara**
 
 Conecte-se ao contêiner do Cassandra e verifique os dados processados:
 ```bash
